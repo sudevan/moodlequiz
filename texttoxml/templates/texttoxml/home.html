@@ -26,7 +26,10 @@
       </div>
     </div>
   </nav>
-  
+  {% if uploaded_file_url %}
+    <p><a href="{{ uploaded_file_url }}"  download class="btn btn-primary" >Download </a></p>
+    <p><a href="{% url 'home' %}" class="btn btn-primary">Return to home</a></p>
+    {% else %}
   <div class="jumbotron">
     <div class="container text-center">
       <h1>Moodle text to XML converter</h1>      
@@ -39,5 +42,7 @@
       </form>
     </div>
   </div>
-  
+
+  {% endif %}
+   
 {% endblock %}

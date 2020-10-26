@@ -4,6 +4,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring,ElementTree
 import re
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+import os
 #from .forms import UploadFileForm
 # Create your views here.
 class textToxmlConverterView(View):
@@ -14,18 +17,28 @@ class textToxmlConverterView(View):
         return render(request,self.template_name,context)
     def post(self,request,*args,**kwargs):
         myfile = request.FILES['myfile']
-        self.handlefileupload(myfile)
-        context ={}
+        outputfilename = self.handlefileupload(myfile)
+        print(outputfilename)
+        context ={"uploaded_file_url":"/media/"+outputfilename,"filename":outputfilename}
         return render(request,self.template_name,context)
-    def handlefileupload(self,filename):
-        with open('name.txt', 'wb+') as destination:
-            for chunk in filename.chunks():
-                destination.write(chunk)
-        self.converttoxml("name.txt")
-    def converttoxml(self,filepath):
+    def handlefileupload(self,myfile):
+        fs = FileSystemStorage()
+        if fs.exists(myfile.name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, myfile.name))
+        filename = fs.save(myfile.name, myfile)
+        uploaded_file_url = fs.url(filename)
+        print(uploaded_file_url)
+        outputfilename = self.converttoxml(filename)
+        """         with open('name.txt', 'wb+') as destination:
+                    for chunk in filename.chunks():
+                        destination.write(chunk)
+                self.converttoxml("name.txt") """
+        return outputfilename
+    def converttoxml(self,filename):
+        filepath=os.path.join(settings.MEDIA_ROOT, filename)
         with open(filepath) as fp:
             #filepath = 'sample.txt'
-            outputfilename = "sample.xml"
+            outputfilename = filepath.split(".")[0]+".xml"
             answemapping = {"A":1,"B":2,"C":3,"D":4}
             top = Element('quiz')
             top.set('version', '1.0')
@@ -73,3 +86,4 @@ class textToxmlConverterView(View):
             tree = ElementTree(top)
             with open (outputfilename, "wb") as files : 
                 tree.write(files)
+            return os.path.basename(outputfilename)
