@@ -9,6 +9,7 @@ from django.core.files.storage import FileSystemStorage
 import os
 #from .forms import UploadFileForm
 # Create your views here.
+
 class textToxmlConverterView(View):
     template_name = "texttoxml/home.html"
     def get(self,request,*args,**kwargs):
@@ -51,12 +52,15 @@ class textToxmlConverterView(View):
                 offset = 0
                 while done == False:
                     #reading text file line by one check whether its a question ,option or answer
-                    nextline = lines[index].strip()
+                    nextline = lines[index].rstrip()
                     index=index+1
                     match = re.search("^[A-D]\.",nextline)
                     if match:
                         #its an option
-                        option = nextline.split('.')[1].strip()
+                        s = "."
+                        #to handle answers with . symbol like 0.25 etc
+                        option = s.join ( nextline.split('.')[1:]).lstrip()
+                        
                         options.append( option)
                     elif nextline.find("ANSWER") != -1:
                         #its an answer
@@ -65,6 +69,8 @@ class textToxmlConverterView(View):
                     else:
                         #its a part of question
                         questiontext += nextline
+                #space where not coming in the unicode text fixed
+                questiontext = questiontext.replace(" ","\u00A0")
                 questionnode = SubElement(top, 'question',{'type':'multichoice'})
                 namenode = SubElement(questionnode,'name')
                 nametextnode = SubElement(namenode,"text")
