@@ -37,7 +37,7 @@ class textToxmlConverterView(View):
         return outputfilename
     def converttoxml(self,filename):
         filepath=os.path.join(settings.MEDIA_ROOT, filename)
-        with open(filepath) as fp:
+        with open(filepath,encoding="utf-8") as fp:
             #filepath = 'sample.txt'
             outputfilename = filepath.split(".")[0]+".xml"
             answemapping = {"A":1,"B":2,"C":3,"D":4}
