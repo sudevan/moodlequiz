@@ -60,7 +60,8 @@ class textToxmlConverterView(View):
                         s = "."
                         #to handle answers with . symbol like 0.25 etc
                         option = s.join ( nextline.split('.')[1:]).lstrip()
-                        
+                        #space issue. replacing space with unicode space char
+                        option = option.replace(" ","\u00A0")
                         options.append( option)
                     elif nextline.find("ANSWER") != -1:
                         #its an answer
